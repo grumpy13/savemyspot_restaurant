@@ -7,6 +7,7 @@ import QueueRow from "./QueueRow";
 
 //Stores
 import authStore from "../../Stores/authStore";
+import socketStore from "../../Stores/socketStore";
 
 class Queue extends Component {
   constructor(props) {
@@ -14,6 +15,17 @@ class Queue extends Component {
     this.state = {
       queue: []
     };
+  }
+  componentDidMount() {
+    authStore.getRestaurantDetails(authStore.restaurant);
+    socketStore.restaurantSignIn(authStore.restaurant);
+
+    socketStore.socket.on("restaurantQ", data => {
+      this.setState({ restaurant: data.name, queue: data.queue });
+    });
+  }
+  componentWillUnmount() {
+    socketStore.socket.off("restaurantQ");
   }
 
   render() {
